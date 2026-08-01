@@ -7,3 +7,5 @@ pytest-order    # ordenação de testes
 httpx==0.26.0   # requests async para testes
 black           # auto formatação
 flake8          # linter
+email-validator
+email-validator

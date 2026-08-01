@@ -9,7 +9,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DUNDIE_DB__uri: "postgresql://postgres:postgres@db:5434/${DUNDIE_DB:-dundie}"
+      DUNDIE_DB__uri: "postgresql://postgres:postgres@db:5432/${DUNDIE_DB:-dundie}"
       DUNDIE_DB__connect_args: "{}"
       SQLALCHEMY_SILENCE_UBER_WARNING: 1
     volumes:
