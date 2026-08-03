@@ -4,3 +4,9 @@
 uri = ""
 connect_args = {check_same_thread=false}
 echo = false
+
+[default.security]
+#secret_key = ""
+ALGORITHM = "HS256"
+ACESS_TOKEN_EXPIRE_MINUTES = 30
+REFRESH_TOKEN_EXPIRE = 600
