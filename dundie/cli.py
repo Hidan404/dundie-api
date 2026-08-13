@@ -2,11 +2,12 @@ import typer
 from rich.console import Console
 from rich.table import Table
 from sqlmodel import Session, select
+from typing import Optional
 
 from .config import settings
 from .db import engine
 from .models import User
-
+from .models.user import generate_username
 main = typer.Typer(name="dundie CLI", add_completion=False)
 
 
@@ -47,3 +48,21 @@ def user_list():
             table.add_row(*[getattr(user, field) for field in fields])
 
     Console().print(table)
+
+@main.command()
+def user_create(name: str, email: str,password: str , dept: str, username: str, currency: str):
+    """Creates a new user"""
+    
+    user = User(
+        name=name,
+        username=username or generate_username(name),
+        email=email,
+        password=password,
+        dept=dept,
+        currency=currency
+    )
+    username = user.username
+    with Session(engine) as session:
+        session.add(user)
+        session.commit()
+    typer.echo(f"User created: {username}")

@@ -1,6 +1,8 @@
 from typing import Optional, List
 from sqlmodel import Field, SQLModel
 from pydantic import validator, EmailStr, HttpUrl
+from dundie.security import HashedPassword
+from pydantic import BaseModel, root_validator
 
 
 # Modelo de dados User usando SQLModel
@@ -22,7 +24,7 @@ class User(SQLModel, table=True):
     bio: Optional[str] = None
 
     # password e name obrigatórios
-    password: str = Field(nullable=False)
+    password:  HashedPassword = Field(nullable=False)
     name: str = Field(nullable=False)
 
     # departemento/role do usuário. Podemos restringir a um conjunto conhecido
@@ -73,3 +75,35 @@ class User(SQLModel, table=True):
         if not (isinstance(v, str) and len(v) == 3 and v.isalpha()):
             raise ValueError("currency deve ser um código ISO de 3 letras, ex: 'USD'")
         return v.upper()
+
+def generate_username(nome: str) -> str:
+    #TODO: implementar lógica de geração de username a partir do nome
+    #testar slugify depois, mas por enquanto vamos apenas normalizar o nome
+    try:
+        nome_normalizado = nome.lower().replace(" ", "-")
+        return nome_normalizado  
+    except Exception as e:
+        raise ValueError(f"Erro ao gerar username {nome} : {e}")
+
+class Userresponse:
+    '''Searializar dadso de resposta'''
+    name: str
+    username: str
+    dept: str
+    avatar: Optional[str] = None
+    bio: Optional[str] = None
+    currency: str
+
+class UserCreate:
+    ''''''    
+    # Atributos na mesma ordem que a classe User
+    email: str
+    username: str
+    avatar: Optional[str] = None
+    bio: Optional[str] = None
+    password: str
+    name: str
+    dept: str
+    currency: str
+
+    @root_validator(pre=True)
