@@ -2,7 +2,7 @@ from typing import Optional, List
 from sqlmodel import Field, SQLModel
 from pydantic import validator, EmailStr, HttpUrl
 from dundie.security import HashedPassword
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, root_validator, ConfigDict
 
 
 # Modelo de dados User usando SQLModel
@@ -85,8 +85,9 @@ def generate_username(nome: str) -> str:
     except Exception as e:
         raise ValueError(f"Erro ao gerar username {nome} : {e}")
 
-class Userresponse:
+class UserResponse(BaseModel):
     '''Searializar dadso de resposta'''
+    
     name: str
     username: str
     dept: str
@@ -94,7 +95,10 @@ class Userresponse:
     bio: Optional[str] = None
     currency: str
 
-class UserCreate:
+    class Config:
+        orm_mode = True
+
+class UserCreate(BaseModel):
     ''''''    
     # Atributos na mesma ordem que a classe User
     email: str
@@ -107,3 +111,16 @@ class UserCreate:
     currency: str
 
     @root_validator(pre=True)
+    def generate_username_if_not_set(cls, value):
+        # Validador de raiz (root_validator) que processa todos os dados do modelo antes da validação individual
+        # pre=True significa que este validador é executado ANTES dos validadores de campo específicos
+        
+        # Verifica se o campo 'username' não foi fornecido (é None ou não existe no dicionário)
+        if value.get("username") is None:
+            # Se username não foi fornecido, gera automaticamente um username a partir do campo 'name'
+            # Chama a função generate_username que normaliza o nome (converte para minúsculas e substitui espaços por hífen)
+            value["username"] = generate_username(value["name"])
+        
+        # Retorna o dicionário de valores atualizado (com username gerado, se necessário)
+        # Este dicionário será usado para instanciar o objeto UserCreate
+        return value
